@@ -1,0 +1,3 @@
+numpy>=1.26,<3
+Pillow>=10,<13
+capstone>=5.0.1,<6
