@@ -1,0 +1,16 @@
+# binaries are not committed (release zip only)
+*.exe
+*.dll
+*.zip
+*.log
+*.spec
+build/
+dist/
+__pycache__/
+*.pyc
+# never commit a key or game files
+*.key
+*.lnk
+*.bin
+*.XWS
+*.d5sd
