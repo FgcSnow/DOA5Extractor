@@ -485,7 +485,9 @@ def zip_add(z, name, data):
 
 def build(roots, groups, destination, texconv=None, log=print, pack_format="extractor", key_file=None):
     from player_key import key_context
-    with key_context(key_file):
+    with key_context(key_file, roots) as key:
+        if key and not key_file:
+            log("Key: read from game.exe in your PC game folder.")
         return _build(roots, groups, destination, texconv, log, pack_format)
 
 ZIP_SET = (("stages", "DOA5MissingContent.zip", "installer"),
@@ -866,7 +868,7 @@ def cli():
     sub = parser.add_subparsers(dest="command", required=True)
     source_help = "A source folder: PS4 base game, PS4 update 1.19, PS4 DLC or PC game folder (repeat for each one)"
     texconv_help = "Path to texconv.exe (default: the bundled one)"
-    key_help = "Your own key file"
+    key_help = "Your own key file (not needed when your PC game folder is a source: the key is read from game.exe)"
     sub.add_parser("list", help="List the content groups")
     b = sub.add_parser("build", help="Make one ZIP from the chosen groups")
     b.add_argument("--source", action="append", required=True, help=source_help)

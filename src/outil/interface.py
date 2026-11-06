@@ -17,7 +17,7 @@ TITLES = {"azuchi1": "Stage: Azuchi 1", "azuchi2": "Stage: Azuchi 2", "crimson1"
 
 def main():
     app = tk.Tk()
-    app.title("DOA5LR PS4 Extractor 0.5.2")
+    app.title("DOA5LR PS4 Extractor 0.5.3")
     app.geometry("850x820")
     app.minsize(700, 550)
     frame = ttk.Frame(app, padding=16)
@@ -45,6 +45,7 @@ def main():
             key_file.set(path)
     ttk.Button(key_row, text="Key file...", command=choose_key).pack(side="left")
     ttk.Entry(key_row, textvariable=key_file, state="readonly").pack(side="left", fill="x", expand=True, padx=8)
+    ttk.Label(frame, text="Key file: optional. With your PC game folder in the list, the key is read from game.exe.").pack(anchor="w")
     options = ttk.LabelFrame(frame, text="Content")
     options.pack(fill="x", pady=6)
     selections = {}

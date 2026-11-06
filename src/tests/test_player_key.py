@@ -44,3 +44,18 @@ class PlayerKeyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             key = Path(t) / "key"; key.write_bytes(b"x" * 65537)
             with self.assertRaises(player_key.KeyRequired): player_key.read_key(key)
+
+    def test_key_read_from_pc_game_exe(self):
+        value = b"synthetic test key, no game secret"
+        with tempfile.TemporaryDirectory() as t:
+            game = Path(t) / "pc"; game.mkdir(); empty = Path(t) / "ps4"; empty.mkdir()
+            (game / "game.exe").write_bytes(b"MZ\0\0junk\0prefix" + value + b"\0more\0")
+            with patch.object(player_key, "EXPECTED_SHA256", hashlib.sha256(value).hexdigest()),                  patch.object(player_key, "KEY_SIZE", len(value)):
+                self.assertIsNone(player_key.find_key_in_game([empty]))
+                self.assertEqual(player_key.find_key_in_game([empty, game]), value)
+                with player_key.key_context(None, [game]) as key:
+                    self.assertEqual(player_key.require_key(), value)
+                    self.assertEqual(key, value)
+                (game / "game.exe").write_bytes(b"MZ\0other\0")
+                with player_key.key_context(None, [game]):
+                    with self.assertRaisesRegex(player_key.KeyRequired, "PC game folder"): player_key.require_key()

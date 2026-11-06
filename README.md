@@ -6,7 +6,8 @@ from your own files. You must own the game (PS4 and PC). Nothing from the game i
 ## Use
 
 1. Extract the release zip and run `Start-Extractor.exe`.
-2. Add your PS4 folders (base game, update 1.19, DLC, already extracted), your PC game folder and your own key file.
+2. Add your PS4 folders (base game, update 1.19, DLC, already extracted) and your PC game folder.
+   The key is read from `game.exe` in your PC game folder (**Key file...** is optional).
 3. Click **Create the ZIPs**, then install them with DOA5Installer (**Add zips**).
 
 Never share the ZIPs: they contain game files.
