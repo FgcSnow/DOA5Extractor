@@ -84,10 +84,14 @@ def read_recipe(path=None):
             seen.add(key)
     return recipe
 
+# 0.5.4 : DLC Steam du jeu PC dont les costumes PS4 ont besoin ; verifies avant de commencer, nommes dans l'erreur
+PC_DLC = {"547230.bin": "DOA5LR Summer Festival Costume Set", "679290.bin": "DOA5LR Zack Island Swimwear Set"}
+
 class Sources:
     def __init__(self, roots, wanted, log=print):
         self.rows = {}
         self.files = {}
+        self.seen = set()
         self.wanted = wanted
         self.log = log
         names = {r["catalog"].casefold() for r in wanted.values() if "file" not in r}
@@ -108,6 +112,7 @@ class Sources:
                 if name in files:
                     self.files.setdefault(name, []).append(p)
                 if name in names:
+                    self.seen.add(name)
                     self.index(p)
         log(f"{len(visited)} source file{'' if len(visited) == 1 else 's'} scanned")
 
@@ -145,6 +150,31 @@ class Sources:
             if offset + size > total or size > MAX_RESOURCE:
                 raise ValueError("Resource outside the archive")
             self.rows.setdefault((p.name.casefold(), name), []).append((archive, offset, size))
+
+    def check(self):
+        absent, different = [], []
+        for key, spec in self.wanted.items():
+            catalog = spec.get("catalog", "").casefold()
+            if catalog not in PC_DLC:
+                continue
+            try:
+                self.find(key)
+                continue
+            except ValueError:
+                pass
+            label = '"' + PC_DLC[catalog] + '" (DLC' + chr(92) + catalog[:-4] + ')'
+            group = different if catalog in self.seen else absent
+            if label not in group:
+                group.append(label)
+        parts = []
+        if absent:
+            parts.append("Steam DLC not found in your PC game folder: " + ", ".join(sorted(absent)) +
+                         ". The PS4 costumes need these PC DLCs installed (and your PC game folder added as a source).")
+        if different:
+            parts.append("PC DLC files different from the originals: " + ", ".join(sorted(different)) +
+                         '. Run "Verify integrity of game files" in Steam, then try again.')
+        if parts:
+            raise ValueError(" ".join(parts))
 
     def read(self, key):
         return self.find(key)[1]
@@ -564,6 +594,7 @@ def _build(roots, groups, destination, texconv=None, log=print, pack_format="ext
     target.parent.mkdir(parents=True, exist_ok=True)
     wanted = {k: recipe["sources"][k] for j in jobs for k in j["inputs"]}
     sources = Sources(roots, wanted, log)
+    sources.check()
     with tempfile.TemporaryDirectory(prefix="doa5lr-extract-", dir=target.parent) as temp:
         archive = Path(temp) / "content.zip"
         generated = Path(temp) / "generated"

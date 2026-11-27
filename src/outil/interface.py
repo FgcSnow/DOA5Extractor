@@ -17,14 +17,15 @@ TITLES = {"azuchi1": "Stage: Azuchi 1", "azuchi2": "Stage: Azuchi 2", "crimson1"
 
 def main():
     app = tk.Tk()
-    app.title("DOA5LR PS4 Extractor 0.5.3")
+    app.title("DOA5LR PS4 Extractor 0.5.4")
     app.geometry("850x820")
     app.minsize(700, 550)
     frame = ttk.Frame(app, padding=16)
     frame.pack(fill="both", expand=True)
     ttk.Label(frame, text="Extract from your own PS4 backup", font=("Segoe UI", 17, "bold")).pack(anchor="w")
     ttk.Label(frame, text="Add your extracted PS4 folders: base game, update 1.19 and DLC.\n"
-              "Also add your PC game folder (costumes v2, costume particles, stage sounds).\n"
+              "Also add your PC game folder: the Steam folder that contains game.exe.\n"
+              "PS4 costumes also need 2 Steam DLCs installed in the PC game: see README.\n"
               "Everything is made from your own files and stays on your computer.").pack(anchor="w", pady=8)
     sources = tk.Listbox(frame, height=4)
     sources.pack(fill="x")
@@ -57,7 +58,6 @@ def main():
     log = tk.Text(frame, height=10, wrap="word", state="disabled")
     actions = ttk.Frame(frame)
     actions.pack(fill="x", pady=8)
-    log.pack(fill="both", expand=True)
     busy = False
     def append(text):
         log.configure(state="normal")
@@ -126,7 +126,8 @@ def main():
               "and DOA5LR-PS4-Costume-Particles.zip.\nPut them next to DOA5Installer.exe, or use its Add zips "
               "button: each ZIP goes to its card (PS4 content, PS4 costumes, PS4 particles).\n"
               "Stage sounds take a few minutes. Other modules are needed: see README.",
-              wraplength=790).pack(anchor="w", pady=4)
+              wraplength=790).pack(side="bottom", anchor="w", pady=4)
+    log.pack(fill="both", expand=True)
     def poll():
         nonlocal busy
         while not events.empty():

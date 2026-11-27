@@ -6,8 +6,11 @@ from your own files. You must own the game (PS4 and PC). Nothing from the game i
 ## Use
 
 1. Extract the release zip and run `Start-Extractor.exe`.
-2. Add your PS4 folders (base game, update 1.19, DLC, already extracted) and your PC game folder.
+2. Add your PS4 folders (base game, update 1.19, DLC, already extracted) and your PC game folder
+   (the Steam folder that contains `game.exe`).
    The key is read from `game.exe` in your PC game folder (**Key file...** is optional).
+   The PS4 costumes ZIP also needs two Steam DLCs installed in your PC game: "Summer Festival Costume Set"
+   (`DLC\547230`) and "Zack Island Swimwear Set" (`DLC\679290`).
 3. Click **Create the ZIPs**, then install them with DOA5Installer (**Add zips**).
 
 Never share the ZIPs: they contain game files.

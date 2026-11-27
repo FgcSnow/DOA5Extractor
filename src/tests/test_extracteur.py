@@ -180,6 +180,39 @@ class ExtracteurTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "eboot.bin"):
             resolver.read("f")
 
+    def test_pc_dlc_checked_before_the_build(self):
+        spec = dict(self.spec, catalog="547230.bin")
+        game = self.root / "pc"
+        (game / "DLC").mkdir(parents=True)
+        with self.assertRaisesRegex(ValueError, "not found.*Summer Festival Costume Set.*547230"):
+            e.Sources([game], {"s": spec}, lambda _: None).check()
+        e.Sources([game], {"s": self.spec}, lambda _: None).check()
+        data = game / "DLC" / "547230" / "data"
+        data.mkdir(parents=True)
+        cat = bytearray(52)
+        cat[:4] = b"LFMO"
+        struct.pack_into("<6I", cat, 4, 1, 1, 32, 40, 52, 52)
+        struct.pack_into("<3I", cat, 40, 0, 0, 52)
+        cat.extend(b"/encoded" + bytes(1))
+        (data / "547230.bin").write_bytes(cat)
+        arc = bytearray(64)
+        arc[:4] = b"PCDM"
+        struct.pack_into("<Q", arc, 8, 1)
+        struct.pack_into("<4Q", arc, 32, 64, len(self.payload), len(self.payload), 0)
+        arc.extend(self.payload)
+        (data / "547230.lnk").write_bytes(arc)
+        resolver = e.Sources([game], {"s": spec}, lambda _: None)
+        resolver.check()
+        self.assertEqual(resolver.read("s"), self.payload)
+        with (data / "547230.lnk").open("r+b") as f:
+            f.seek(64)
+            f.write(b"x")
+        with self.assertRaisesRegex(ValueError, "different from the originals.*547230.*Verify integrity"):
+            e.Sources([game], {"s": spec}, lambda _: None).check()
+        other = dict(spec, size=spec["size"] + 1)
+        with self.assertRaisesRegex(ValueError, "different from the originals.*547230.*Verify integrity"):
+            e.Sources([game], {"s": other}, lambda _: None).check()
+
     def test_build_set_one_zip_per_card(self):
         source = self.root / "ps4"
         source.mkdir()
